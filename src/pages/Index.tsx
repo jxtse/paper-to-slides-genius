@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
@@ -50,12 +51,26 @@ const Index: React.FC = () => {
         fullText += textContent.items.map(item => ('str' in item ? item.str : '')).join(' ') + '\n';
         
         // 2. Extract Images
+        try {
+          // Using a private API to force dependencies to be loaded, which can help
+          // with "object not resolved yet" errors for some PDFs.
+          await (page as any).getDependencies();
+        } catch (depError) {
+          console.warn(`Could not preload page ${i} dependencies, continuing without:`, depError);
+        }
+        
         const operatorList = await page.getOperatorList();
+        const processedImageNames = new Set<string>();
         
         for (let j = 0; j < operatorList.fnArray.length; j++) {
             const op = operatorList.fnArray[j];
             if (op === pdfjsLib.OPS.paintImageXObject) {
                 const imageName = operatorList.argsArray[j][0];
+                if (processedImageNames.has(imageName)) {
+                    continue; // Already processed this image on this page.
+                }
+                processedImageNames.add(imageName);
+
                 try {
                     const img = await page.objs.get(imageName);
                     if (!img || !img.data) continue;
