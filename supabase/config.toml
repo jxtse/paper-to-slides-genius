@@ -3,3 +3,6 @@ project_id = "adujdkfjxcyludfbiybo"
 
 [functions.generate-outline]
 # verify_jwt = true # Default is true, uncomment and set to false if the function should be public
+
+[functions.generate-svg-gemini]
+# verify_jwt = true

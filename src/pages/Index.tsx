@@ -143,7 +143,7 @@ const Index: React.FC = () => {
 
         <FileUpload
           onFileSelect={handleFileSelect}
-          onGenerate={handleGenerateOutline} // Updated to new handler
+          onGenerate={handleGenerateOutline}
           isGenerating={isGenerating}
           selectedFile={selectedFile}
           clearFile={clearFile}
@@ -163,7 +163,7 @@ const Index: React.FC = () => {
             </div>
         )}
 
-        {slideMarkdown && <OutlineDisplay markdownContent={slideMarkdown} />}
+        {slideMarkdown && <OutlineDisplay markdownContent={slideMarkdown} extractedText={extractedText} />}
 
       </main>
       <Footer />
