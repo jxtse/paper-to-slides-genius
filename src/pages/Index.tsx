@@ -41,9 +41,18 @@ const Index: React.FC = () => {
       
       let fullText = '';
       const imageUrls: string[] = [];
+      const processedImageNames = new Set<string>(); // Track all processed images across all pages
 
       for (let i = 1; i <= pdf.numPages; i++) {
         const page = await pdf.getPage(i);
+        
+        // Attempt to preload page dependencies. This is a key step for complex PDFs
+        // and might resolve the 'object not resolved' errors.
+        try {
+          await (page as any).getDependencies();
+        } catch (depError) {
+          console.warn(`Could not preload dependencies for page ${i}.`, depError);
+        }
         
         // 1. Extract Text
         const textContent = await page.getTextContent();
@@ -51,59 +60,65 @@ const Index: React.FC = () => {
         
         // 2. Extract Images
         const operatorList = await page.getOperatorList();
-        const processedImageNames = new Set<string>();
         
         for (let j = 0; j < operatorList.fnArray.length; j++) {
-            const op = operatorList.fnArray[j];
-            if (op === pdfjsLib.OPS.paintImageXObject) {
-                const imageName = operatorList.argsArray[j][0];
-                if (processedImageNames.has(imageName)) {
-                    continue; // Already processed this image on this page.
+            if (operatorList.fnArray[j] !== pdfjsLib.OPS.paintImageXObject) {
+                continue;
+            }
+            
+            const imageName = operatorList.argsArray[j][0];
+            if (processedImageNames.has(imageName)) {
+                continue; // Already processed this image, skip.
+            }
+
+            try {
+                const img = await page.objs.get(imageName);
+                
+                if (!img || !img.data || !img.width || !img.height) {
+                    console.warn(`Skipping invalid image object: ${imageName}`);
+                    continue;
                 }
+
+                // Add to set only after we confirm we can process it.
                 processedImageNames.add(imageName);
+                
+                const { width, height, data } = img;
+                const canvas = document.createElement('canvas');
+                canvas.width = width;
+                canvas.height = height;
+                const ctx = canvas.getContext('2d');
+                if (!ctx) continue;
 
-                try {
-                    const img = await page.objs.get(imageName);
-                    if (!img || !img.data) continue;
+                const imageData = ctx.createImageData(width, height);
+                const pixelData = imageData.data;
+                const numPixels = width * height;
+                const numComponents = data.length / numPixels;
 
-                    const { width, height, data } = img;
-                    if (!width || !height || !data) continue;
-                    
-                    const canvas = document.createElement('canvas');
-                    canvas.width = width;
-                    canvas.height = height;
-                    const ctx = canvas.getContext('2d');
-                    if (!ctx) continue;
-
-                    const imageData = ctx.createImageData(width, height);
-                    const pixelData = imageData.data;
-                    
-                    if (data.length === width * height * 4) { // RGBA
-                        pixelData.set(data);
-                    } else if (data.length === width * height * 3) { // RGB
-                        for (let k = 0, l = 0; k < data.length; k += 3, l += 4) {
-                            pixelData[l] = data[k];
-                            pixelData[l + 1] = data[k + 1];
-                            pixelData[l + 2] = data[k + 2];
-                            pixelData[l + 3] = 255;
-                        }
-                    } else if (data.length === width * height) { // Grayscale
-                        for (let k = 0, l = 0; k < data.length; k++, l += 4) {
-                            pixelData[l] = data[k];
-                            pixelData[l + 1] = data[k];
-                            pixelData[l + 2] = data[k];
-                            pixelData[l + 3] = 255;
-                        }
-                    } else {
-                        console.warn(`Skipping image with unhandled data format. Data length: ${data.length}, WxH: ${width*height}`);
-                        continue;
+                if (numComponents === 4) { // RGBA
+                    pixelData.set(data);
+                } else if (numComponents === 3) { // RGB
+                    for (let k = 0, l = 0; k < data.length; k += 3, l += 4) {
+                        pixelData[l] = data[k];
+                        pixelData[l + 1] = data[k + 1];
+                        pixelData[l + 2] = data[k + 2];
+                        pixelData[l + 3] = 255;
                     }
-
-                    ctx.putImageData(imageData, 0, 0);
-                    imageUrls.push(canvas.toDataURL('image/png'));
-                } catch (e) {
-                    console.error("Error processing an image on page", i, e);
+                } else if (numComponents === 1) { // Grayscale
+                    for (let k = 0, l = 0; k < data.length; k++, l += 4) {
+                        pixelData[l] = data[k];
+                        pixelData[l + 1] = data[k];
+                        pixelData[l + 2] = data[k];
+                        pixelData[l + 3] = 255;
+                    }
+                } else {
+                    console.warn(`Skipping image '${imageName}' with unhandled color format (components: ${numComponents})`);
+                    continue;
                 }
+
+                ctx.putImageData(imageData, 0, 0);
+                imageUrls.push(canvas.toDataURL('image/png'));
+            } catch (e) {
+                console.error(`Error processing image resource '${imageName}' on page ${i}:`, e);
             }
         }
       }
