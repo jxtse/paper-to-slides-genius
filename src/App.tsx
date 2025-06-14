@@ -1,6 +1,6 @@
 
 import { Toaster } from "@/components/ui/toaster";
-import { Toaster as Sonner } from "@/components/ui/sonner"; // Ensure this is used or remove if not
+import { Sonner } from "@/components/ui/sonner"; // Corrected import name from Toaster to Sonner
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
