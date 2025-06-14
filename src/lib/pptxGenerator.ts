@@ -23,7 +23,7 @@ export const generatePptx = async (markdownContent: string, imageStates: Map<str
       slide.addText(titleLineForPptx.replace(/^#+\s*/, ''), { x: 0.5, y: 0.25, w: '90%', h: 0.75, fontSize: 24, bold: true, color: '363636' });
 
       const contentLinesForPptx = linesForPptx.filter(line => !line.startsWith('#') && !line.startsWith('[Suggested Image:'));
-      const bodyText = contentLinesForPptx.join('\n').replace(/^- /g, '');
+      const bodyText = contentLinesForPptx.map(line => line.replace(/^\s*[\*-]\s/, '')).join('\n');
       slide.addText(bodyText, { x: 0.5, y: 1.2, w: '90%', h: 3.8, fontSize: 16, bullet: true, color: '494949' });
       
       const imageSuggestionRegex = /\[Suggested Image:\s*(.*?)\]/g;

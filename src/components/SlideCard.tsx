@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { ImageSuggestionState } from '@/hooks/useImageGeneration';
@@ -14,7 +15,7 @@ const SlideCard: React.FC<SlideCardProps> = ({ slideMd, slideIndex, imageStates,
   const lines = slideMd.trim().split('\n');
   const titleLine = lines.find(line => line.startsWith('#')) || lines[0] || `Slide ${slideIndex + 1}`;
   const contentLines = lines.filter(line => line !== titleLine);
-  const rawContent = contentLines.join('\n');
+  const rawContent = contentLines.map(line => line.replace(/^\s*[\*-]\s/, '')).join('\n');
 
   const imageSuggestionRegex = /\[Suggested Image:\s*(.*?)\]/g;
   
