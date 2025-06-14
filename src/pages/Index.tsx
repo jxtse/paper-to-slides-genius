@@ -140,7 +140,7 @@ const Index: React.FC = () => {
     <div className="flex flex-col min-h-screen bg-background">
       <Header />
       <main className="flex-grow container mx-auto px-6 py-12">
-        <section className="text-center mb-12">
+        <section className="text-center mb-16 p-12 bg-card rounded-xl shadow-lg">
           <h2 className="text-4xl font-bold text-foreground mb-4">
             Transform Your Papers into Engaging Presentations
           </h2>

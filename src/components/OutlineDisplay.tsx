@@ -28,7 +28,7 @@ const OutlineDisplay: React.FC<OutlineDisplayProps> = ({ markdownContent, extrac
   const slides = markdownContent.split('---');
 
   return (
-    <div className="w-full max-w-3xl mx-auto mt-12">
+    <div className="w-full max-w-3xl mx-auto mt-12 animate-fade-in">
       <div className="flex justify-between items-center mb-8">
         <h2 className="text-3xl font-bold text-foreground">Generated Slide Outline</h2>
         <Button onClick={handleDownloadPptx} disabled={isPptxGenerating}>
