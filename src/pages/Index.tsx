@@ -4,6 +4,7 @@ import Footer from '@/components/Footer';
 import FileUpload from '@/components/FileUpload';
 import OutlineDisplay from '@/components/OutlineDisplay';
 import { Button } from '@/components/ui/button';
+import { Expand } from 'lucide-react';
 import * as pdfjsLib from 'pdfjs-dist';
 import { supabase } from '@/integrations/supabase/client'; // Import Supabase client
 import { toast } from 'sonner'; // Import toast for notifications
@@ -22,6 +23,14 @@ const Index: React.FC = () => {
   const [isGenerating, setIsGenerating] = useState(false);
   const [slideMarkdown, setSlideMarkdown] = useState<string | null>(null);
   const [extractedText, setExtractedText] = useState<string | null>(null);
+  const [isTextExpanded, setIsTextExpanded] = useState(false);
+
+  useEffect(() => {
+    // Reset expansion when a new file's text is extracted
+    if (extractedText) {
+      setIsTextExpanded(false);
+    }
+  }, [extractedText]);
 
   const extractTextFromPdf = async (file: File) => {
     try {
@@ -151,9 +160,17 @@ const Index: React.FC = () => {
         
         {extractedText && extractedText !== "Error extracting text." && (
           <div className="mt-8 p-4 bg-muted rounded-lg max-w-3xl mx-auto">
-            <h3 className="text-lg font-semibold mb-2 text-foreground">Extracted Text (Snippet):</h3>
-            <pre className="whitespace-pre-wrap text-sm text-muted-foreground overflow-auto max-h-40">
-              {extractedText.substring(0, 500)}...
+            <div className="flex justify-between items-center mb-2">
+                <h3 className="text-lg font-semibold text-foreground">
+                    {isTextExpanded ? "Extracted Text" : "Extracted Text (Snippet)"}
+                </h3>
+                <Button variant="ghost" size="sm" onClick={() => setIsTextExpanded(!isTextExpanded)}>
+                    <Expand />
+                    <span>{isTextExpanded ? "Collapse" : "Expand"}</span>
+                </Button>
+            </div>
+            <pre className={`whitespace-pre-wrap text-sm text-muted-foreground overflow-auto transition-all duration-300 ${isTextExpanded ? 'max-h-[60vh]' : 'max-h-40'}`}>
+              {isTextExpanded ? extractedText : `${extractedText.substring(0, 500)}...`}
             </pre>
           </div>
         )}
