@@ -1,10 +1,11 @@
 
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Button } from "@/components/ui/button"; // Added Button
-import { Lightbulb, Image as ImageIcon, Loader2 } from 'lucide-react'; // Added Loader2
-import { supabase } from '@/integrations/supabase/client'; // Added Supabase client
-import { toast } from 'sonner'; // Added toast
+import { Button } from "@/components/ui/button";
+import { Lightbulb, Image as ImageIcon, Loader2, Download } from 'lucide-react'; // Added Download and Loader2
+import { supabase } from '@/integrations/supabase/client';
+import { toast } from 'sonner';
+import PptxGenJS from 'pptxgenjs'; // Import pptxgenjs
 
 interface OutlineDisplayProps {
   markdownContent: string | null;
@@ -19,10 +20,69 @@ interface ImageSuggestionState {
 
 const OutlineDisplay: React.FC<OutlineDisplayProps> = ({ markdownContent, extractedText }) => {
   const [imageStates, setImageStates] = useState<Map<string, ImageSuggestionState>>(new Map());
+  const [isPptxGenerating, setIsPptxGenerating] = useState(false);
 
   if (!markdownContent) {
     return null;
   }
+
+  const handleGeneratePptx = async () => {
+    if (!markdownContent) {
+      toast.error("No outline content available to generate a presentation.");
+      return;
+    }
+    setIsPptxGenerating(true);
+    toast.info("Generating .pptx presentation...", { id: "pptx-gen" });
+
+    try {
+      const pptx = new PptxGenJS();
+      const slidesMd = markdownContent.split('---');
+
+      for (const [slideIndex, slideMd] of slidesMd.entries()) {
+        const slide = pptx.addSlide();
+        const lines = slideMd.trim().split('\n').filter(line => line.trim() !== '');
+        
+        const titleLine = lines.find(line => line.startsWith('#')) || `Slide ${slideIndex + 1}`;
+        slide.addText(titleLine.replace(/^#+\s*/, ''), { x: 0.5, y: 0.25, w: '90%', h: 0.75, fontSize: 24, bold: true, color: '363636' });
+
+        const contentLines = lines.filter(line => !line.startsWith('#') && !line.startsWith('[Suggested Image:'));
+        const bodyText = contentLines.join('\n').replace(/^- /g, ''); // Basic list formatting
+        slide.addText(bodyText, { x: 0.5, y: 1.2, w: '90%', h: 3.8, fontSize: 16, bullet: true, color: '494949' });
+        
+        // Find and add generated SVG images
+        const imageSuggestionRegex = /\[Suggested Image:\s*(.*?)\]/g;
+        let match;
+        const rawContent = lines.join('\n');
+        
+        // Reset regex from previous uses if any
+        imageSuggestionRegex.lastIndex = 0;
+
+        while ((match = imageSuggestionRegex.exec(rawContent)) !== null) {
+          const suggestionKey = `slide-${slideIndex}-img-${match.index}`;
+          const imageState = imageStates.get(suggestionKey);
+
+          if (imageState?.svgCode) {
+            // Convert SVG string to base64 data URL to embed it
+            const svgBase64 = 'data:image/svg+xml;base64,' + btoa(unescape(encodeURIComponent(imageState.svgCode)));
+            slide.addImage({
+              data: svgBase64,
+              x: 5.5, y: 1.5, w: 4, h: 3,
+            });
+          }
+        }
+      }
+
+      const fileName = `presentation-${new Date().toISOString().slice(0, 10)}.pptx`;
+      await pptx.writeFile({ fileName });
+      toast.success("Presentation generated successfully!", { id: "pptx-gen" });
+
+    } catch (error: any) {
+      console.error("Error generating PPTX file:", error);
+      toast.error("Failed to generate presentation.", { description: error.message, id: "pptx-gen" });
+    } finally {
+      setIsPptxGenerating(false);
+    }
+  };
 
   const handleGenerateSvg = async (imagePrompt: string, suggestionKey: string) => {
     if (!extractedText) {
@@ -158,7 +218,17 @@ const OutlineDisplay: React.FC<OutlineDisplayProps> = ({ markdownContent, extrac
 
   return (
     <div className="w-full max-w-3xl mx-auto mt-12">
-      <h2 className="text-3xl font-bold text-center mb-8 text-foreground">Generated Slide Outline</h2>
+      <div className="flex justify-between items-center mb-8">
+        <h2 className="text-3xl font-bold text-foreground">Generated Slide Outline</h2>
+        <Button onClick={handleGeneratePptx} disabled={isPptxGenerating}>
+          {isPptxGenerating ? (
+            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+          ) : (
+            <Download className="mr-2 h-4 w-4" />
+          )}
+          Download .pptx
+        </Button>
+      </div>
       <div className="bg-accent/10 p-4 rounded-lg mb-6 flex items-start">
         <Lightbulb className="text-accent-foreground h-5 w-5 mr-3 mt-1 flex-shrink-0" />
         <p className="text-sm text-accent-foreground">
