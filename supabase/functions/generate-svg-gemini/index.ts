@@ -40,7 +40,7 @@ serve(async (req) => {
 You are an AI assistant specialized in generating SVG code for technical and academic illustrations.
 Based on the following image description and contextual academic paper text, generate valid, self-contained SVG code.
 The SVG should visually represent the image description. Aim for a clear, illustrative style.
-The SVG must start with "<svg" and end with "</svg>". Do not include any other text, explanations, or markdown formatting around the SVG code itself.
+The SVG must start with "<svg" and end with "</svg>". Do not include any other text, explanations, or markdown formatting like \`\`\` around the SVG code itself.
 
 Image Description:
 ---
@@ -88,21 +88,29 @@ If you cannot generate a meaningful or valid SVG for the given description, resp
 
     if (data.candidates && data.candidates[0]?.content?.parts?.[0]?.text) {
       const generatedText = data.candidates[0].content.parts[0].text.trim();
+      
       if (generatedText === "[[CANNOT_GENERATE_SVG]]") {
         console.log("Gemini indicated it cannot generate SVG for this prompt.");
         return new Response(JSON.stringify({ error: "AI could not generate SVG for this prompt." , svgCode: null }), {
+          status: 200, // This is a valid response from the AI, not a server error.
           headers: { ...corsHeaders, "Content-Type": "application/json" },
         });
       }
-      // A basic check if it looks like SVG. More robust parsing is hard here.
-      if (generatedText.startsWith("<svg") && generatedText.endsWith("</svg>")) {
-        console.log("Potential SVG code received from Gemini.");
-        return new Response(JSON.stringify({ svgCode: generatedText }), {
+
+      // Attempt to extract SVG code, even if it's wrapped in markdown fences.
+      const svgRegex = /(<svg[\s\S]*<\/svg>)/;
+      const match = generatedText.match(svgRegex);
+
+      if (match && match[1]) {
+        const extractedSvg = match[1];
+        console.log("Successfully extracted SVG code from Gemini response.");
+        return new Response(JSON.stringify({ svgCode: extractedSvg }), {
           headers: { ...corsHeaders, "Content-Type": "application/json" },
         });
       } else {
-        console.warn("Gemini response did not look like valid SVG:", generatedText.substring(0,100));
+        console.warn("Gemini response did not contain valid SVG:", generatedText.substring(0,100));
         return new Response(JSON.stringify({ error: "AI response was not in expected SVG format.", svgCode: null, rawResponse: generatedText.substring(0, 200) + "..." }), {
+          status: 200, // Valid AI response, just not what we want.
           headers: { ...corsHeaders, "Content-Type": "application/json" },
         });
       }
