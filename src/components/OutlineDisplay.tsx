@@ -52,12 +52,16 @@ const OutlineDisplay: React.FC<OutlineDisplayProps> = ({ markdownContent, extrac
         // Find and add generated SVG images
         const imageSuggestionRegex = /\[Suggested Image:\s*(.*?)\]/g;
         let match;
-        const rawContent = lines.join('\n');
+
+        // FIX: The string for regex matching MUST be identical to the one used in `renderMarkdown` to generate the keys.
+        // `renderMarkdown` filters out the title line before running the regex. We must do the same here.
+        const titleLineForKeyGen = lines.find(line => line.startsWith('#')) || lines[0] || `Slide ${slideIndex + 1}`;
+        const contentLinesForKeyGen = lines.filter(line => line !== titleLineForKeyGen);
+        const rawContentForKeyGen = contentLinesForKeyGen.join('\n');
         
-        // Reset regex from previous uses if any
         imageSuggestionRegex.lastIndex = 0;
 
-        while ((match = imageSuggestionRegex.exec(rawContent)) !== null) {
+        while ((match = imageSuggestionRegex.exec(rawContentForKeyGen)) !== null) {
           const suggestionKey = `slide-${slideIndex}-img-${match.index}`;
           const imageState = imageStates.get(suggestionKey);
 
@@ -128,7 +132,8 @@ const OutlineDisplay: React.FC<OutlineDisplayProps> = ({ markdownContent, extrac
       .split('---')
       .map((slideMd, slideIndex) => {
         const lines = slideMd.trim().split('\n');
-        const titleLine = lines.find(line => line.startsWith('# Slide')) || lines[0] || `Slide ${slideIndex + 1}`;
+        // FIX: Unify title finding logic to be consistent with the PPTX generator.
+        const titleLine = lines.find(line => line.startsWith('#')) || lines[0] || `Slide ${slideIndex + 1}`;
         const contentLines = lines.filter(line => line !== titleLine);
         const rawContent = contentLines.join('\n');
 
