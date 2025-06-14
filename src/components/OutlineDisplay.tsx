@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -39,33 +40,38 @@ const OutlineDisplay: React.FC<OutlineDisplayProps> = ({ markdownContent, extrac
 
       for (const [slideIndex, slideMd] of slidesMd.entries()) {
         const slide = pptx.addSlide();
-        const lines = slideMd.trim().split('\n').filter(line => line.trim() !== '');
         
-        const titleLine = lines.find(line => line.startsWith('#')) || `Slide ${slideIndex + 1}`;
-        slide.addText(titleLine.replace(/^#+\s*/, ''), { x: 0.5, y: 0.25, w: '90%', h: 0.75, fontSize: 24, bold: true, color: '363636' });
+        // --- Logic for adding visible text content to the PPTX slide ---
+        const linesForPptx = slideMd.trim().split('\n').filter(line => line.trim() !== '');
+        const titleLineForPptx = linesForPptx.find(line => line.startsWith('#')) || `Slide ${slideIndex + 1}`;
+        slide.addText(titleLineForPptx.replace(/^#+\s*/, ''), { x: 0.5, y: 0.25, w: '90%', h: 0.75, fontSize: 24, bold: true, color: '363636' });
 
-        const contentLines = lines.filter(line => !line.startsWith('#') && !line.startsWith('[Suggested Image:'));
-        const bodyText = contentLines.join('\n').replace(/^- /g, ''); // Basic list formatting
+        const contentLinesForPptx = linesForPptx.filter(line => !line.startsWith('#') && !line.startsWith('[Suggested Image:'));
+        const bodyText = contentLinesForPptx.join('\n').replace(/^- /g, ''); // Basic list formatting
         slide.addText(bodyText, { x: 0.5, y: 1.2, w: '90%', h: 3.8, fontSize: 16, bullet: true, color: '494949' });
         
-        // Find and add generated SVG images
+        // --- Logic for finding and embedding images ---
+        // This part must now perfectly mirror the logic in `renderMarkdown` to find the correct keys.
         const imageSuggestionRegex = /\[Suggested Image:\s*(.*?)\]/g;
         let match;
 
-        // FIX: The string for regex matching MUST be identical to the one used in `renderMarkdown` to generate the keys.
-        // `renderMarkdown` filters out the title line before running the regex. We must do the same here.
-        const titleLineForKeyGen = lines.find(line => line.startsWith('#')) || lines[0] || `Slide ${slideIndex + 1}`;
-        const contentLinesForKeyGen = lines.filter(line => line !== titleLineForKeyGen);
+        // 1. Get all lines, without filtering out empty ones, just like in renderMarkdown.
+        const linesForKeyGen = slideMd.trim().split('\n');
+        // 2. Find the title line with the same logic.
+        const titleLineForKeyGen = linesForKeyGen.find(line => line.startsWith('#')) || linesForKeyGen[0] || `Slide ${slideIndex + 1}`;
+        // 3. Create the raw content string from which keys are generated.
+        const contentLinesForKeyGen = linesForKeyGen.filter(line => line !== titleLineForKeyGen);
         const rawContentForKeyGen = contentLinesForKeyGen.join('\n');
         
-        imageSuggestionRegex.lastIndex = 0;
+        imageSuggestionRegex.lastIndex = 0; // Reset regex state before executing
 
         while ((match = imageSuggestionRegex.exec(rawContentForKeyGen)) !== null) {
+          // 4. Generate the key, which should now match the one from the UI.
           const suggestionKey = `slide-${slideIndex}-img-${match.index}`;
           const imageState = imageStates.get(suggestionKey);
 
           if (imageState?.svgCode) {
-            // Convert SVG string to base64 data URL to embed it
+            // Embed the image if found
             const svgBase64 = 'data:image/svg+xml;base64,' + btoa(unescape(encodeURIComponent(imageState.svgCode)));
             slide.addImage({
               data: svgBase64,
