@@ -3,7 +3,8 @@ import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 
 const GEMINI_API_KEY = Deno.env.get("GOOGLE_GEMINI_API_KEY");
-const GEMINI_API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${GEMINI_API_KEY}`;
+// Updated to use gemini-1.5-flash-latest model
+const GEMINI_API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${GEMINI_API_KEY}`;
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -73,11 +74,11 @@ ${extractedText}
       // Optional: Add generationConfig if needed, e.g., for temperature, maxOutputTokens
       // generationConfig: {
       //   temperature: 0.7,
-      //   maxOutputTokens: 2048,
+      //   maxOutputTokens: 2048, // You might want to adjust this if outlines are too short/long
       // }
     };
 
-    console.log("Sending request to Gemini API...");
+    console.log("Sending request to Gemini API (model: gemini-1.5-flash-latest)...");
     const response = await fetch(GEMINI_API_URL, {
       method: "POST",
       headers: {
@@ -98,14 +99,25 @@ ${extractedText}
     const data = await response.json();
     console.log("Received response from Gemini API.");
 
+    // Adjusted parsing based on common Gemini response structure for generateContent
     if (data.candidates && data.candidates[0] && data.candidates[0].content && data.candidates[0].content.parts && data.candidates[0].content.parts[0]) {
       const generatedMarkdown = data.candidates[0].content.parts[0].text;
       return new Response(JSON.stringify({ slideMarkdown: generatedMarkdown.trim() }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
-    } else {
+    } else if (data.promptFeedback && data.promptFeedback.blockReason) {
+      // Handle cases where content is blocked
+      const blockReason = data.promptFeedback.blockReason;
+      const safetyRatings = data.promptFeedback.safetyRatings || [];
+      console.error(`Content blocked by Gemini API. Reason: ${blockReason}`, safetyRatings);
+      return new Response(JSON.stringify({ error: `Content generation blocked by API. Reason: ${blockReason}. Please check safety ratings.` }), {
+        status: 400, // Or an appropriate status
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+    else {
       console.error("Unexpected response structure from Gemini API:", JSON.stringify(data, null, 2));
-      return new Response(JSON.stringify({ error: "Failed to parse Gemini response." }), {
+      return new Response(JSON.stringify({ error: "Failed to parse Gemini response or empty content." }), {
         status: 500,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
@@ -118,3 +130,4 @@ ${extractedText}
     });
   }
 });
+
