@@ -52,7 +52,7 @@ const Index: React.FC = () => {
         
         // 2. Extract Images using a more robust method via page resources
         try {
-          const resources = await page.getResources();
+          const resources = await (page as any).getResources();
           if (!resources) continue;
 
           const xObjects = await resources.get('XObject');
