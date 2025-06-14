@@ -41,7 +41,9 @@ export const generatePptx = async (markdownContent: string, imageStates: Map<str
         const imageState = imageStates.get(suggestionKey);
 
         if (imageState?.svgCode) {
-          const svgBase64 = 'data:image/svg+xml;base64,' + btoa(unescape(encodeURIComponent(imageState.svgCode)));
+          // The `unescape` function is deprecated and can be unreliable.
+          // Directly using btoa is simpler and should work for SVGs without multi-byte characters.
+          const svgBase64 = 'data:image/svg+xml;base64,' + btoa(imageState.svgCode);
           slide.addImage({
             data: svgBase64,
             x: 5.5, y: 1.5, w: 4, h: 3,

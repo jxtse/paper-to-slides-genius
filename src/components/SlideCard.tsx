@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { ImageSuggestionState } from '@/hooks/useImageGeneration';
@@ -59,7 +58,7 @@ const SlideCard: React.FC<SlideCardProps> = ({ slideMd, slideIndex, imageStates,
       </CardHeader>
       <CardContent>
         <div className="prose prose-sm max-w-none text-foreground">
-          {jsxElements.map((el, idx) => <React.Fragment key={idx}>{el}</React.Fragment>)}
+          {jsxElements.map((el, idx) => <div key={idx}>{el}</div>)}
           <div dangerouslySetInnerHTML={{ __html: combinedHtml }} />
         </div>
       </CardContent>
