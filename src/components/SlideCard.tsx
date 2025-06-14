@@ -15,17 +15,17 @@ const SlideCard: React.FC<SlideCardProps> = ({ slideMd, slideIndex, imageStates,
   const lines = slideMd.trim().split('\n');
   const titleLine = lines.find(line => line.startsWith('#')) || lines[0] || `Slide ${slideIndex + 1}`;
   const contentLines = lines.filter(line => line !== titleLine);
-  const rawContent = contentLines.map(line => line.replace(/^\s*[\*-]\s/, '')).join('\n');
-
+  
+  const fullContentString = contentLines.join('\n');
   const imageSuggestionRegex = /\[Suggested Image:\s*(.*?)\]/g;
   
   let lastIndex = 0;
   const elements: (string | JSX.Element)[] = [];
   let match;
 
-  while ((match = imageSuggestionRegex.exec(rawContent)) !== null) {
+  while ((match = imageSuggestionRegex.exec(fullContentString)) !== null) {
     if (match.index > lastIndex) {
-      elements.push(rawContent.substring(lastIndex, match.index).replace(/\n/g, '<br />'));
+      elements.push(fullContentString.substring(lastIndex, match.index));
     }
     
     const imageDescription = match[1].trim();
@@ -44,12 +44,32 @@ const SlideCard: React.FC<SlideCardProps> = ({ slideMd, slideIndex, imageStates,
     lastIndex = imageSuggestionRegex.lastIndex;
   }
   
-  if (lastIndex < rawContent.length) {
-    elements.push(rawContent.substring(lastIndex).replace(/\n/g, '<br />'));
+  if (lastIndex < fullContentString.length) {
+    elements.push(fullContentString.substring(lastIndex));
   }
 
-  const combinedHtml = elements.map(el => typeof el === 'string' ? el : '').join('');
-  const jsxElements = elements.filter(el => typeof el !== 'string');
+  const renderedElements: JSX.Element[] = [];
+  elements.forEach((element, index) => {
+    if (typeof element === 'string') {
+      const textLines = element.split('\n').filter(line => line.trim());
+      textLines.forEach((line, lineIndex) => {
+        const isBullet = /^\s*[\*-]\s/.test(line);
+        const text = line.replace(/^\s*[\*-]\s/, '');
+
+        if (isBullet && text) {
+          renderedElements.push(
+            <div key={`text-${index}-${lineIndex}`} className="flex items-start">
+              <span className="mr-3 mt-1 text-primary text-sm">●</span>
+              <span>{text}</span>
+            </div>
+          );
+        }
+      });
+    } else {
+      renderedElements.push(<div key={`img-${index}`}>{element}</div>);
+    }
+  });
+
 
   return (
     <Card className="mb-6 shadow-lg">
@@ -58,9 +78,8 @@ const SlideCard: React.FC<SlideCardProps> = ({ slideMd, slideIndex, imageStates,
         {slideIndex === 0 && <CardDescription>This is a preview of your slide outline. Click "Generate SVG" to attempt image creation with Gemini.</CardDescription>}
       </CardHeader>
       <CardContent>
-        <div className="prose prose-sm max-w-none text-foreground">
-          {jsxElements.map((el, idx) => <div key={idx}>{el}</div>)}
-          <div dangerouslySetInnerHTML={{ __html: combinedHtml }} />
+        <div className="space-y-3 text-foreground">
+          {renderedElements}
         </div>
       </CardContent>
     </Card>
