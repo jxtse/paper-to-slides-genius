@@ -1,16 +1,14 @@
+import { useTheme } from "next-themes"
+import { Toaster as Sonner, toast } from "sonner"
 
-// import { useTheme } from "next-themes" // Temporarily comment out or remove if not configured
-import { Toaster as SonnerPrimitive, toast } from "sonner" // Renamed to avoid conflict
+type ToasterProps = React.ComponentProps<typeof Sonner>
 
-type ToasterProps = React.ComponentProps<typeof SonnerPrimitive>
-
-const SonnerToaster = ({ ...props }: ToasterProps) => { // Renamed component
-  // const { theme = "system" } = useTheme() // Temporarily comment out
+const Toaster = ({ ...props }: ToasterProps) => {
+  const { theme = "system" } = useTheme()
 
   return (
-    <SonnerPrimitive
-      // theme={theme as ToasterProps["theme"]} // Temporarily comment out
-      theme="light" // Set a default theme or make it configurable
+    <Sonner
+      theme={theme as ToasterProps["theme"]}
       className="toaster group"
       toastOptions={{
         classNames: {
@@ -28,4 +26,4 @@ const SonnerToaster = ({ ...props }: ToasterProps) => { // Renamed component
   )
 }
 
-export { SonnerToaster as Sonner, toast } // Export renamed component
+export { Toaster, toast }
