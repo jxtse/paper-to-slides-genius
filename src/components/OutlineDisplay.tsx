@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -233,13 +232,6 @@ const OutlineDisplay: React.FC<OutlineDisplayProps> = ({ markdownContent, extrac
           )}
           Download .pptx
         </Button>
-      </div>
-      <div className="bg-accent/10 p-4 rounded-lg mb-6 flex items-start">
-        <Lightbulb className="text-accent-foreground h-5 w-5 mr-3 mt-1 flex-shrink-0" />
-        <p className="text-sm text-accent-foreground">
-          <strong>Note:</strong> This is an experimental feature. The AI (Gemini 1.5 Flash) will attempt to generate SVG code for image suggestions.
-          Success and quality may vary.
-        </p>
       </div>
       <div>{renderMarkdown(markdownContent)}</div>
     </div>
