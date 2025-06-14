@@ -9,9 +9,10 @@ import SlideCard from './SlideCard';
 interface OutlineDisplayProps {
   markdownContent: string | null;
   extractedText: string | null;
+  extractedImages: string[];
 }
 
-const OutlineDisplay: React.FC<OutlineDisplayProps> = ({ markdownContent, extractedText }) => {
+const OutlineDisplay: React.FC<OutlineDisplayProps> = ({ markdownContent, extractedText, extractedImages }) => {
   const [isPptxGenerating, setIsPptxGenerating] = useState(false);
   const { imageStates, handleGenerateSvg } = useImageGeneration(extractedText);
 
@@ -21,6 +22,8 @@ const OutlineDisplay: React.FC<OutlineDisplayProps> = ({ markdownContent, extrac
 
   const handleDownloadPptx = async () => {
     setIsPptxGenerating(true);
+    // Note: extractedImages are not yet being passed to the generator.
+    // This will be the next step.
     await generatePptx(markdownContent, imageStates);
     setIsPptxGenerating(false);
   };

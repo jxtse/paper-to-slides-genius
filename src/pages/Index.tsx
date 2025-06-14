@@ -6,8 +6,9 @@ import OutlineDisplay from '@/components/OutlineDisplay';
 import { Button } from '@/components/ui/button';
 import { Expand } from 'lucide-react';
 import * as pdfjsLib from 'pdfjs-dist';
-import { supabase } from '@/integrations/supabase/client'; // Import Supabase client
-import { toast } from 'sonner'; // Import toast for notifications
+import { supabase } from '@/integrations/supabase/client';
+import { toast } from 'sonner';
+import ExtractedImagesDisplay from '@/components/ExtractedImagesDisplay';
 
 // Required for pdfjs-dist to work
 // You might need to host these worker files or adjust the path depending on your bundler setup.
@@ -23,6 +24,7 @@ const Index: React.FC = () => {
   const [isGenerating, setIsGenerating] = useState(false);
   const [slideMarkdown, setSlideMarkdown] = useState<string | null>(null);
   const [extractedText, setExtractedText] = useState<string | null>(null);
+  const [extractedImages, setExtractedImages] = useState<string[]>([]);
   const [isTextExpanded, setIsTextExpanded] = useState(false);
 
   useEffect(() => {
@@ -32,25 +34,88 @@ const Index: React.FC = () => {
     }
   }, [extractedText]);
 
-  const extractTextFromPdf = async (file: File) => {
+  const processPdf = async (file: File) => {
     try {
       const arrayBuffer = await file.arrayBuffer();
       const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+      
       let fullText = '';
+      const imageUrls: string[] = [];
+
       for (let i = 1; i <= pdf.numPages; i++) {
         const page = await pdf.getPage(i);
+        
+        // 1. Extract Text
         const textContent = await page.getTextContent();
         fullText += textContent.items.map(item => ('str' in item ? item.str : '')).join(' ') + '\n';
+        
+        // 2. Extract Images
+        const operatorList = await page.getOperatorList();
+        
+        for (let j = 0; j < operatorList.fnArray.length; j++) {
+            const op = operatorList.fnArray[j];
+            if (op === pdfjsLib.OPS.paintImageXObject) {
+                const imageName = operatorList.argsArray[j][0];
+                try {
+                    const img = await page.objs.get(imageName);
+                    if (!img || !img.data) continue;
+
+                    const { width, height, data } = img;
+                    if (!width || !height || !data) continue;
+                    
+                    const canvas = document.createElement('canvas');
+                    canvas.width = width;
+                    canvas.height = height;
+                    const ctx = canvas.getContext('2d');
+                    if (!ctx) continue;
+
+                    const imageData = ctx.createImageData(width, height);
+                    const pixelData = imageData.data;
+                    
+                    if (data.length === width * height * 4) { // RGBA
+                        pixelData.set(data);
+                    } else if (data.length === width * height * 3) { // RGB
+                        for (let k = 0, l = 0; k < data.length; k += 3, l += 4) {
+                            pixelData[l] = data[k];
+                            pixelData[l + 1] = data[k + 1];
+                            pixelData[l + 2] = data[k + 2];
+                            pixelData[l + 3] = 255;
+                        }
+                    } else if (data.length === width * height) { // Grayscale
+                        for (let k = 0, l = 0; k < data.length; k++, l += 4) {
+                            pixelData[l] = data[k];
+                            pixelData[l + 1] = data[k];
+                            pixelData[l + 2] = data[k];
+                            pixelData[l + 3] = 255;
+                        }
+                    } else {
+                        console.warn(`Skipping image with unhandled data format. Data length: ${data.length}, WxH: ${width*height}`);
+                        continue;
+                    }
+
+                    ctx.putImageData(imageData, 0, 0);
+                    imageUrls.push(canvas.toDataURL('image/png'));
+                } catch (e) {
+                    console.error("Error processing an image on page", i, e);
+                }
+            }
+        }
       }
+
       setExtractedText(fullText);
-      console.log("Extracted PDF Text:", fullText.substring(0, 500) + "..."); // Log first 500 chars
-      return fullText;
+      setExtractedImages(imageUrls);
+      console.log(`Extracted ${imageUrls.length} images.`);
+      console.log("Extracted PDF Text:", fullText.substring(0, 500) + "...");
+      
+      return { text: fullText, images: imageUrls };
+
     } catch (error) {
-      console.error("Error extracting text from PDF:", error);
-      toast.error("Error extracting text from PDF.", {
+      console.error("Error processing PDF:", error);
+      toast.error("Error processing PDF.", {
         description: (error as Error).message
       });
       setExtractedText("Error extracting text.");
+      setExtractedImages([]);
       return null;
     }
   };
@@ -59,15 +124,21 @@ const Index: React.FC = () => {
     setSelectedFile(file);
     setSlideMarkdown(null); // Clear previous outline
     setExtractedText(null); // Clear previous extracted text
-    toast.info("Extracting text from PDF...", { id: "pdf-extraction" });
-    const text = await extractTextFromPdf(file);
-    if (text && text !== "Error extracting text.") {
-      toast.success("Text extracted successfully!", { id: "pdf-extraction" });
-    } else if (text === "Error extracting text.") {
-      // Error toast already shown in extractTextFromPdf
-      toast.dismiss("pdf-extraction");
+    setExtractedImages([]); // Clear previous images
+    toast.info("Processing PDF (text and images)...", { id: "pdf-processing" });
+    const result = await processPdf(file);
+    
+    if (result) {
+      if (result.text && result.text !== "Error extracting text.") {
+        toast.success("PDF processed successfully!", { id: "pdf-processing" });
+        if (result.images.length > 0) {
+            toast.info(`${result.images.length} image(s) extracted.`);
+        }
+      } else {
+        toast.dismiss("pdf-processing");
+      }
     } else {
-      toast.warning("Text extraction complete, but no text found or minor issue.", {id: "pdf-extraction"});
+      toast.error("Failed to process PDF.", {id: "pdf-processing"});
     }
   };
 
@@ -75,6 +146,7 @@ const Index: React.FC = () => {
     setSelectedFile(null);
     setSlideMarkdown(null);
     setExtractedText(null);
+    setExtractedImages([]);
   }
 
   const handleGenerateOutline = async () => {
@@ -165,7 +237,7 @@ const Index: React.FC = () => {
                     {isTextExpanded ? "Extracted Text" : "Extracted Text (Snippet)"}
                 </h3>
                 <Button variant="ghost" size="sm" onClick={() => setIsTextExpanded(!isTextExpanded)}>
-                    <Expand />
+                    <Expand className="mr-2 h-4 w-4" />
                     <span>{isTextExpanded ? "Collapse" : "Expand"}</span>
                 </Button>
             </div>
@@ -179,8 +251,10 @@ const Index: React.FC = () => {
                 <p className="text-destructive text-center font-semibold">Could not extract text from PDF. Please try another file.</p>
             </div>
         )}
+        
+        {extractedImages.length > 0 && <ExtractedImagesDisplay images={extractedImages} />}
 
-        {slideMarkdown && <OutlineDisplay markdownContent={slideMarkdown} extractedText={extractedText} />}
+        {slideMarkdown && <OutlineDisplay markdownContent={slideMarkdown} extractedText={extractedText} extractedImages={extractedImages} />}
 
       </main>
       <Footer />
