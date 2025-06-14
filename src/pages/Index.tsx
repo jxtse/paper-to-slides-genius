@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
@@ -51,14 +50,6 @@ const Index: React.FC = () => {
         fullText += textContent.items.map(item => ('str' in item ? item.str : '')).join(' ') + '\n';
         
         // 2. Extract Images
-        try {
-          // Using a private API to force dependencies to be loaded, which can help
-          // with "object not resolved yet" errors for some PDFs.
-          await (page as any).getDependencies();
-        } catch (depError) {
-          console.warn(`Could not preload page ${i} dependencies, continuing without:`, depError);
-        }
-        
         const operatorList = await page.getOperatorList();
         const processedImageNames = new Set<string>();
         
