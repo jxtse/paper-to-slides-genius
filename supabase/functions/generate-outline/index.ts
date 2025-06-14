@@ -43,6 +43,11 @@ Each slide should start with a title like '# Slide X: Title'.
 Use bullet points for key information within each slide.
 Separate each slide with '---'.
 
+IMPORTANT: Where appropriate, suggest a complex, illustrative image that would enhance the slide's content.
+Embed these suggestions directly in the markdown using the format:
+[Suggested Image: A detailed description of the complex illustration you envision. Be specific about elements, style, and mood.]
+Place these suggestions near the relevant text or as a standalone point if it summarizes the slide.
+
 Ensure the outline covers:
 1. Title of the paper (if discernible) and presenters.
 2. Introduction/Abstract summary.
@@ -74,11 +79,11 @@ ${extractedText}
       // Optional: Add generationConfig if needed, e.g., for temperature, maxOutputTokens
       // generationConfig: {
       //   temperature: 0.7,
-      //   maxOutputTokens: 2048, // You might want to adjust this if outlines are too short/long
+      //   maxOutputTokens: 3072, // Increased slightly if image prompts make output longer
       // }
     };
 
-    console.log("Sending request to Gemini API (model: gemini-1.5-flash-latest)...");
+    console.log("Sending request to Gemini API (model: gemini-1.5-flash-latest) with image prompt instructions...");
     const response = await fetch(GEMINI_API_URL, {
       method: "POST",
       headers: {
