@@ -5,6 +5,8 @@ import FileUpload from '@/components/FileUpload';
 import OutlineDisplay from '@/components/OutlineDisplay';
 import { Button } from '@/components/ui/button';
 import * as pdfjsLib from 'pdfjs-dist';
+import { supabase } from '@/integrations/supabase/client'; // Import Supabase client
+import { toast } from 'sonner'; // Import toast for notifications
 
 // Required for pdfjs-dist to work
 // You might need to host these worker files or adjust the path depending on your bundler setup.
@@ -36,6 +38,9 @@ const Index: React.FC = () => {
       return fullText;
     } catch (error) {
       console.error("Error extracting text from PDF:", error);
+      toast.error("Error extracting text from PDF.", {
+        description: (error as Error).message
+      });
       setExtractedText("Error extracting text.");
       return null;
     }
@@ -45,7 +50,16 @@ const Index: React.FC = () => {
     setSelectedFile(file);
     setSlideMarkdown(null); // Clear previous outline
     setExtractedText(null); // Clear previous extracted text
-    await extractTextFromPdf(file);
+    toast.info("Extracting text from PDF...", { id: "pdf-extraction" });
+    const text = await extractTextFromPdf(file);
+    if (text && text !== "Error extracting text.") {
+      toast.success("Text extracted successfully!", { id: "pdf-extraction" });
+    } else if (text === "Error extracting text.") {
+      // Error toast already shown in extractTextFromPdf
+      toast.dismiss("pdf-extraction");
+    } else {
+      toast.warning("Text extraction complete, but no text found or minor issue.", {id: "pdf-extraction"});
+    }
   };
 
   const clearFile = () => {
@@ -54,63 +68,63 @@ const Index: React.FC = () => {
     setExtractedText(null);
   }
 
-  const mockGenerateOutline = () => {
-    // For now, this still uses mock data.
-    // In a future step, `extractedText` would be used here or sent to an LLM.
-    if (!selectedFile) return;
-    if (extractedText) {
-      console.log("Generating outline (mock) for file with extracted text available.");
-    } else {
-      console.log("Generating outline (mock) for file, text extraction might still be in progress or failed.");
+  const handleGenerateOutline = async () => {
+    if (!selectedFile) {
+      toast.error("Please select a file first.");
+      return;
+    }
+    if (!extractedText || extractedText === "Error extracting text.") {
+      toast.error("Text not extracted from PDF or extraction failed. Please re-upload or try another file.");
+      return;
     }
 
     setIsGenerating(true);
-    // Simulate API call / LLM processing
-    setTimeout(() => {
-      const mockPaperName = selectedFile.name.replace('.pdf', '');
-      // If we have extracted text, we could potentially use it here in the future
-      // For now, the mock remains the same.
-      const mockMarkdown = `
-# Slide 1: Title - ${mockPaperName}
-- Presenter: Your Name
-- Date: ${new Date().toLocaleDateString()}
-- (Content based on extracted text would go here)
+    setSlideMarkdown(null); // Clear previous outline while generating new one
+    toast.info("Generating slide outline with Gemini AI...", { id: "gemini-generation" });
 
----
+    try {
+      console.log("Invoking Supabase function 'generate-outline'");
+      const { data, error } = await supabase.functions.invoke('generate-outline', {
+        body: { extractedText },
+      });
 
-# Slide 2: Introduction
-- Brief overview of the paper (from extracted text)
-- Motivation and problem statement (from extracted text)
+      if (error) {
+        console.error("Error invoking Supabase function:", error);
+        toast.error("Failed to generate outline.", {
+          description: error.message,
+          id: "gemini-generation",
+        });
+        setSlideMarkdown(`Error generating outline: ${error.message}`);
+        return;
+      }
 
----
-
-# Slide 3: Main Points (Example)
-- Point 1 from paper (from extracted text)
-- Point 2 from paper (from extracted text)
-
----
-
-# Slide 4: Methodology (Example)
-- Approach details (from extracted text)
-
----
-
-# Slide 5: Results (Example)
-- Key findings (from extracted text)
-
----
-
-# Slide 6: Conclusion
-- Summary (from extracted text)
-
----
-
-# Slide 7: Q&A
-- Thank you
-      `;
-      setSlideMarkdown(mockMarkdown.trim());
+      if (data && data.slideMarkdown) {
+        console.log("Received outline from Supabase function:", data.slideMarkdown.substring(0,100)+"...");
+        setSlideMarkdown(data.slideMarkdown);
+        toast.success("Slide outline generated successfully!", { id: "gemini-generation" });
+      } else if (data && data.error) {
+        console.error("Error from Supabase function logic:", data.error);
+        toast.error("Failed to generate outline.", {
+          description: data.error,
+          id: "gemini-generation",
+        });
+        setSlideMarkdown(`Error generating outline: ${data.error}`);
+      } 
+      else {
+        console.error("Unexpected response from Supabase function:", data);
+        toast.error("Received an unexpected response from the generation service.", { id: "gemini-generation" });
+        setSlideMarkdown("Error: Unexpected response from generation service.");
+      }
+    } catch (invokeError) {
+      console.error("Critical error calling Supabase function:", invokeError);
+      toast.error("A critical error occurred while trying to generate the outline.", {
+        description: (invokeError as Error).message,
+        id: "gemini-generation",
+      });
+      setSlideMarkdown(`Critical error: ${(invokeError as Error).message}`);
+    } finally {
       setIsGenerating(false);
-    }, 2000);
+    }
   };
 
   return (
@@ -129,21 +143,24 @@ const Index: React.FC = () => {
 
         <FileUpload
           onFileSelect={handleFileSelect}
-          onGenerate={mockGenerateOutline}
+          onGenerate={handleGenerateOutline} // Updated to new handler
           isGenerating={isGenerating}
           selectedFile={selectedFile}
           clearFile={clearFile}
         />
         
-        {/* Optionally, display a snippet of extracted text for debugging/confirmation */}
-        {extractedText && (
+        {extractedText && extractedText !== "Error extracting text." && (
           <div className="mt-8 p-4 bg-muted rounded-lg max-w-3xl mx-auto">
             <h3 className="text-lg font-semibold mb-2 text-foreground">Extracted Text (Snippet):</h3>
             <pre className="whitespace-pre-wrap text-sm text-muted-foreground overflow-auto max-h-40">
               {extractedText.substring(0, 500)}...
             </pre>
-            {extractedText === "Error extracting text." && <p className="text-destructive mt-2">Could not extract text from PDF.</p>}
           </div>
+        )}
+        {extractedText === "Error extracting text." && (
+            <div className="mt-8 p-4 bg-destructive/10 rounded-lg max-w-3xl mx-auto">
+                <p className="text-destructive text-center font-semibold">Could not extract text from PDF. Please try another file.</p>
+            </div>
         )}
 
         {slideMarkdown && <OutlineDisplay markdownContent={slideMarkdown} />}
