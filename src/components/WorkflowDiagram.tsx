@@ -11,13 +11,13 @@ const steps = [
 
 const WorkflowDiagram = () => {
   return (
-    <section className="py-16 bg-white/50 rounded-lg my-16">
+    <section className="my-16 p-12 bg-white rounded-lg shadow-lg border border-mint">
       <h2 className="text-3xl font-bold text-center text-teal-green mb-12">How It Works</h2>
       <div className="flex flex-col md:flex-row justify-center items-center gap-8 md:gap-4">
         {steps.map((step, index) => (
           <React.Fragment key={step.text}>
             <div className="flex flex-col items-center text-center w-36">
-              <div className="bg-gradient-to-br from-mint to-white p-4 rounded-full border-2 border-white shadow-md mb-3">
+              <div className="bg-mint/50 p-4 rounded-full mb-3">
                 <step.icon className="h-8 w-8 text-teal-green" />
               </div>
               <p className="font-semibold text-teal-green">{step.text}</p>
