@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
@@ -227,18 +226,14 @@ const Index: React.FC = () => {
     <div className="flex flex-col min-h-screen bg-background">
       <Header />
       <main className="flex-grow container mx-auto px-6 py-12">
-        <section className="text-center mb-16 py-20 px-6 relative bg-card border border-primary/10 rounded-xl overflow-hidden shadow-2xl shadow-primary/10">
-          <div className="absolute inset-0 bg-grid-pattern opacity-50"></div>
-          <div className="absolute -inset-2 bg-gradient-to-t from-background to-transparent"></div>
-          <div className="relative z-10">
-            <h2 className="text-5xl font-bold text-foreground mb-4 animate-fade-in drop-shadow-[0_0_8px_hsl(var(--primary))]">
-              Transform Your Papers into Engaging Presentations
-            </h2>
-            <p className="text-xl text-muted-foreground max-w-3xl mx-auto animate-fade-in [animation-delay:0.2s]">
-              Upload your academic PDF, and let our AI craft a structured slide outline for you.
-              Effortless, intelligent, and fast.
-            </p>
-          </div>
+        <section className="text-center mb-16 p-12 bg-card rounded-xl shadow-lg">
+          <h2 className="text-4xl font-bold text-foreground mb-4">
+            Transform Your Papers into Engaging Presentations
+          </h2>
+          <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
+            Upload your academic PDF, and let our AI craft a structured slide outline for you.
+            Effortless, intelligent, and fast.
+          </p>
         </section>
 
         <FileUpload
@@ -250,7 +245,7 @@ const Index: React.FC = () => {
         />
         
         {extractedText && extractedText !== "Error extracting text." && (
-          <div className="mt-8 p-4 bg-card border border-primary/10 rounded-lg max-w-3xl mx-auto animate-fade-in">
+          <div className="mt-8 p-4 bg-muted rounded-lg max-w-3xl mx-auto">
             <div className="flex justify-between items-center mb-2">
                 <h3 className="text-lg font-semibold text-foreground">
                     {isTextExpanded ? "Extracted Text" : "Extracted Text (Snippet)"}
@@ -266,7 +261,7 @@ const Index: React.FC = () => {
           </div>
         )}
         {extractedText === "Error extracting text." && (
-            <div className="mt-8 p-4 bg-destructive/10 border border-destructive/20 rounded-lg max-w-3xl mx-auto animate-fade-in">
+            <div className="mt-8 p-4 bg-destructive/10 rounded-lg max-w-3xl mx-auto">
                 <p className="text-destructive text-center font-semibold">Could not extract text from PDF. Please try another file.</p>
             </div>
         )}
