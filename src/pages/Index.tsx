@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
@@ -15,8 +14,6 @@ import ExtractedImagesDisplay from '@/components/ExtractedImagesDisplay';
 import HeroSection from '@/components/HeroSection';
 import FeatureCards from '@/components/FeatureCards';
 import WorkflowDiagram from '@/components/WorkflowDiagram';
-import TrustElements from '@/components/TrustElements';
-
 
 // Required for pdfjs-dist to work
 // You might need to host these worker files or adjust the path depending on your bundler setup.
@@ -273,8 +270,6 @@ const Index: React.FC = () => {
         <FeatureCards />
 
         <WorkflowDiagram />
-
-        <TrustElements />
 
       </main>
       <Footer />
