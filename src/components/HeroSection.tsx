@@ -5,7 +5,7 @@ const HeroSection = () => {
   return (
     <section className="text-center mb-16 animate-fade-in">
       <h2 
-        className="text-4xl md:text-5xl font-extrabold mb-4 bg-gradient-to-r from-mauve to-salmon text-transparent bg-clip-text"
+        className="text-3xl sm:text-4xl lg:text-5xl font-extrabold mb-4 bg-gradient-to-r from-mauve to-salmon text-transparent bg-clip-text"
       >
         Transform Your Papers into Engaging Presentations
       </h2>
