@@ -3,79 +3,83 @@
 @tailwind components;
 @tailwind utilities;
 
+@import url('https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;700&display=swap');
+
 @layer base {
   :root {
-    --background: 220 14.3% 95.9%; /* Light Gray */
-    --foreground: 224 71.4% 4.1%; /* Dark Blue-Gray */
+    /* Dark theme with blue/cyan accents */
+    --background: 222 47% 11%; /* Very Dark Blue */
+    --foreground: 210 40% 98%; /* Almost White */
 
-    --card: 0 0% 100%;
-    --card-foreground: 224 71.4% 4.1%;
+    --card: 222 47% 15%; /* Slightly Lighter Dark Blue */
+    --card-foreground: 210 40% 98%;
 
-    --popover: 0 0% 100%;
-    --popover-foreground: 224 71.4% 4.1%;
+    --popover: 222 47% 11%;
+    --popover-foreground: 210 40% 98%;
 
-    --primary: 217 91.2% 59.8%; /* Bright Blue */
-    --primary-foreground: 0 0% 98%; /* Light Gray / White */
+    --primary: 180 91% 59%; /* Cyan */
+    --primary-foreground: 222 47% 11%;
 
-    --secondary: 220 13% 91%; /* Light Gray */
-    --secondary-foreground: 224 71.4% 4.1%;
+    --secondary: 217 33% 17%;
+    --secondary-foreground: 210 40% 98%;
 
-    --muted: 220 13% 91%;
-    --muted-foreground: 220 8.9% 46.1%; /* Medium Gray */
+    --muted: 217 33% 17%;
+    --muted-foreground: 215 20% 65%;
 
-    --accent: 217 91.2% 59.8%; /* Using primary blue as accent for now */
-    --accent-foreground: 0 0% 98%;
+    --accent: 217 33% 17%;
+    --accent-foreground: 210 40% 98%;
 
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 0 0% 98%;
+    --destructive: 0 63% 31%;
+    --destructive-foreground: 210 40% 98%;
 
-    --border: 220 13% 85%; /* Slightly darker border */
-    --input: 220 13% 85%;
-    --ring: 217 91.2% 59.8%;
+    --border: 217 33% 27%;
+    --input: 217 33% 27%;
+    --ring: 180 91% 59%;
 
     --radius: 0.5rem;
 
     /* Custom variables for our app theme */
-    --app-header-background: 224 71.4% 4.1%; /* Dark Blue-Gray for header */
-    --app-header-foreground: 0 0% 98%; /* Light text on header */
-    --app-footer-background: 220 14.3% 95.9%; /* Very Light Gray for footer */
-    --app-footer-foreground: 220 8.9% 46.1%; /* Medium Gray text on footer */
+    --app-header-background: 222 47% 11%;
+    --app-header-foreground: 210 40% 98%;
+    --app-footer-background: 222 47% 11%;
+    --app-footer-foreground: 215 20% 65%;
   }
 
   .dark {
-    --background: 224 71.4% 4.1%;
-    --foreground: 0 0% 98%;
+    /* Keeping this block in case a theme toggle is added later, but the root is already dark */
+    --background: 222 47% 11%;
+    --foreground: 210 40% 98%;
 
-    --card: 224 71.4% 4.1%;
-    --card-foreground: 0 0% 98%;
+    --card: 222 47% 15%;
+    --card-foreground: 210 40% 98%;
 
-    --popover: 224 71.4% 4.1%;
-    --popover-foreground: 0 0% 98%;
+    --popover: 222 47% 11%;
+    --popover-foreground: 210 40% 98%;
 
-    --primary: 217 91.2% 59.8%;
-    --primary-foreground: 224 71.4% 4.1%;
+    --primary: 180 91% 59%;
+    --primary-foreground: 222 47% 11%;
 
-    --secondary: 220 13% 18%; /* Darker Gray */
-    --secondary-foreground: 0 0% 98%;
+    --secondary: 217 33% 17%;
+    --secondary-foreground: 210 40% 98%;
 
-    --muted: 220 13% 18%;
-    --muted-foreground: 220 8.9% 46.1%;
+    --muted: 217 33% 17%;
+    --muted-foreground: 215 20% 65%;
 
-    --accent: 217 91.2% 59.8%;
-    --accent-foreground: 224 71.4% 4.1%;
+    --accent: 217 33% 17%;
+    --accent-foreground: 210 40% 98%;
 
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 0 0% 98%;
+    --destructive: 0 63% 31%;
+    --destructive-foreground: 210 40% 98%;
 
-    --border: 220 13% 28%; /* Darker border for dark mode */
-    --input: 220 13% 28%;
-    --ring: 217 91.2% 59.8%;
+    --border: 217 33% 27%;
+    --input: 217 33% 27%;
+    --ring: 180 91% 59%;
 
     /* Custom dark theme variables */
-    --app-header-background: 225 6% 13%; /* Even Darker Blue-Gray for header */
-    --app-header-foreground: 0 0% 98%;
-    --app-footer-background: 224 71.4% 4.1%; /* Dark Blue-Gray for footer */
-    --app-footer-foreground: 220 8.9% 46.1%;
+    --app-header-background: 222 47% 11%;
+    --app-header-foreground: 210 40% 98%;
+    --app-footer-background: 222 47% 11%;
+    --app-footer-foreground: 215 20% 65%;
   }
 }
 
@@ -85,8 +89,6 @@
   }
   body {
     @apply bg-background text-foreground;
-    font-family: 'Inter', sans-serif; /* Adding a nice font */
+    font-family: 'Rajdhani', sans-serif; /* Tech-inspired font */
   }
-  /* Add Inter font to the project via CDN in index.html or install locally */
 }
-
