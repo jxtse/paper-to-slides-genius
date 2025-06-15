@@ -1,22 +1,32 @@
 
 import React from 'react';
-import { BrainCircuit, Zap, Award } from 'lucide-react';
+import { BrainCircuit, Zap, Wand, FileText, Image } from 'lucide-react';
 
 const features = [
   {
-    icon: <BrainCircuit className="h-10 w-10 text-mauve" />,
-    title: 'AI Intelligence',
-    description: 'Leverages advanced AI to understand context and structure your content logically.',
+    icon: (
+      <div className="flex h-10 w-auto items-center justify-center gap-2">
+        <BrainCircuit className="h-10 w-10 text-mauve" />
+        <Wand className="h-10 w-10 text-mauve" />
+      </div>
+    ),
+    title: 'Dual AI Power',
+    description: 'Leverages Gemini 2.5 Pro to generate both structured content and matching SVG graphics.',
   },
   {
     icon: <Zap className="h-10 w-10 text-salmon" />,
     title: 'Rapid Conversion',
-    description: 'Go from a dense paper to a clear slide outline in just a matter of seconds.',
+    description: 'Go from a dense paper to a clear slide outline, complete with visuals, in just a matter of seconds.',
   },
   {
-    icon: <Award className="h-10 w-10 text-teal-green" />,
-    title: 'Professional Quality',
-    description: 'Generates high-quality, professional outlines ready for your presentation.',
+    icon: (
+      <div className="flex h-10 w-auto items-center justify-center gap-2">
+        <FileText className="h-10 w-10 text-teal-green" />
+        <Image className="h-10 w-10 text-teal-green" />
+      </div>
+    ),
+    title: 'Text + Graphics',
+    description: 'Generates comprehensive presentations with both content and visual elements.',
   },
 ];
 
@@ -41,3 +51,4 @@ const FeatureCards = () => {
 };
 
 export default FeatureCards;
+

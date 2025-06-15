@@ -1,11 +1,12 @@
 
 import React from 'react';
-import { UploadCloud, Cpu, FileSliders, Download } from 'lucide-react';
+import { UploadCloud, Cpu, FileSliders, Download, Wand } from 'lucide-react';
 
 const steps = [
   { icon: UploadCloud, text: 'Upload' },
   { icon: Cpu, text: 'Analyze' },
-  { icon: FileSliders, text: 'Generate' },
+  { icon: FileSliders, text: 'Generate Text' },
+  { icon: Wand, text: 'Create Graphics' },
   { icon: Download, text: 'Download' },
 ];
 
@@ -25,14 +26,14 @@ const WorkflowDiagram = () => {
               <p className="font-semibold text-teal-green">{step.text}</p>
             </div>
             {index < steps.length - 1 && (
-              <div className="h-12 w-1 bg-gradient-to-b from-mauve to-teal-green my-2 rounded-full opacity-70" />
+              <div className="h-12 w-1 bg-gradient-to-r from-mauve to-teal-green my-2 rounded-full opacity-70 bg-[length:200%_200%] animate-gradient-flow" />
             )}
           </React.Fragment>
         ))}
       </div>
 
       {/* Desktop View */}
-      <div className="hidden md:block max-w-3xl mx-auto">
+      <div className="hidden md:block max-w-4xl mx-auto">
         <div className="flex justify-between items-center">
           {steps.map((step, index) => (
             <React.Fragment key={step.text}>
@@ -40,14 +41,14 @@ const WorkflowDiagram = () => {
                 <step.icon className="h-8 w-8 text-teal-green" />
               </div>
               {index < steps.length - 1 && (
-                <div className="flex-1 h-1 bg-gradient-to-r from-mauve to-teal-green mx-4 rounded-full opacity-70" />
+                <div className="flex-1 h-1 bg-gradient-to-r from-mauve to-teal-green mx-4 rounded-full opacity-70 bg-[length:200%_200%] animate-gradient-flow" />
               )}
             </React.Fragment>
           ))}
         </div>
         <div className="flex justify-between mt-3">
           {steps.map((step) => (
-            <div key={step.text} className="w-16 text-center">
+            <div key={step.text} className="w-24 text-center">
               <p className="font-semibold text-teal-green">{step.text}</p>
             </div>
           ))}
@@ -58,3 +59,4 @@ const WorkflowDiagram = () => {
 };
 
 export default WorkflowDiagram;
+
