@@ -10,7 +10,7 @@ const HeroSection = () => {
         Transform Your Papers into Engaging Presentations
       </h2>
       <p className="text-xl text-teal-green/70 max-w-3xl mx-auto">
-        Upload your academic PDF, and let our AI craft a structured slide outline for you. Effortless, intelligent, and fast.
+        Upload your academic PDF, and let our AI craft a structured slide outline for you.
       </p>
     </section>
   );

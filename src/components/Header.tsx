@@ -10,7 +10,7 @@ const Header: React.FC = () => {
           <div className="bg-mint/20 p-2 rounded-md mr-4">
              <Presentation size={28} className="text-teal-green" />
           </div>
-          <h1 className="text-2xl font-bold text-teal-green">Paper to Slides Genius</h1>
+          <h1 className="text-2xl font-bold text-teal-green">Paper to Slides</h1>
         </div>
       </div>
     </header>
