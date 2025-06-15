@@ -5,77 +5,64 @@
 
 @layer base {
   :root {
-    --background: 220 14.3% 95.9%; /* Light Gray */
-    --foreground: 224 71.4% 4.1%; /* Dark Blue-Gray */
+    --background: 154 50% 98%; /* Subtle Mint background */
+    --foreground: 175 20% 30%; /* Teal Green */
 
     --card: 0 0% 100%;
-    --card-foreground: 224 71.4% 4.1%;
+    --card-foreground: 175 20% 30%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 224 71.4% 4.1%;
+    --popover-foreground: 175 20% 30%;
 
-    --primary: 217 91.2% 59.8%; /* Bright Blue */
-    --primary-foreground: 0 0% 98%; /* Light Gray / White */
+    /* New Custom Color System from prompt */
+    --mauve-hsl: 353 22% 64%;   /* #b99095 */
+    --salmon-hsl: 8 95% 83%;    /* #fcb5ac */
+    --mint-hsl: 154 50% 80%;    /* #b5e5cf */
+    --teal-green-hsl: 175 20% 30%; /* #3d5b59 */
 
-    --secondary: 220 13% 91%; /* Light Gray */
-    --secondary-foreground: 224 71.4% 4.1%;
+    --primary: var(--mauve-hsl);
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: var(--salmon-hsl);
+    --secondary-foreground: var(--teal-green-hsl);
 
     --muted: 220 13% 91%;
-    --muted-foreground: 220 8.9% 46.1%; /* Medium Gray */
+    --muted-foreground: 220 8.9% 46.1%;
 
-    --accent: 217 91.2% 59.8%; /* Using primary blue as accent for now */
-    --accent-foreground: 0 0% 98%;
+    --accent: var(--mint-hsl);
+    --accent-foreground: var(--teal-green-hsl);
 
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 0 0% 98%;
 
-    --border: 220 13% 85%; /* Slightly darker border */
+    --border: var(--mauve-hsl);
     --input: 220 13% 85%;
-    --ring: 217 91.2% 59.8%;
+    --ring: var(--salmon-hsl);
 
     --radius: 0.5rem;
-
-    /* Custom variables for our app theme */
-    --app-header-background: 224 71.4% 4.1%; /* Dark Blue-Gray for header */
-    --app-header-foreground: 0 0% 98%; /* Light text on header */
-    --app-footer-background: 220 14.3% 95.9%; /* Very Light Gray for footer */
-    --app-footer-foreground: 220 8.9% 46.1%; /* Medium Gray text on footer */
   }
 
   .dark {
+    /* Dark mode is optional and not implemented in this step */
     --background: 224 71.4% 4.1%;
     --foreground: 0 0% 98%;
-
     --card: 224 71.4% 4.1%;
     --card-foreground: 0 0% 98%;
-
     --popover: 224 71.4% 4.1%;
     --popover-foreground: 0 0% 98%;
-
     --primary: 217 91.2% 59.8%;
     --primary-foreground: 224 71.4% 4.1%;
-
-    --secondary: 220 13% 18%; /* Darker Gray */
+    --secondary: 220 13% 18%;
     --secondary-foreground: 0 0% 98%;
-
     --muted: 220 13% 18%;
     --muted-foreground: 220 8.9% 46.1%;
-
     --accent: 217 91.2% 59.8%;
     --accent-foreground: 224 71.4% 4.1%;
-
     --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 0 0% 98%;
-
-    --border: 220 13% 28%; /* Darker border for dark mode */
+    --border: 220 13% 28%;
     --input: 220 13% 28%;
     --ring: 217 91.2% 59.8%;
-
-    /* Custom dark theme variables */
-    --app-header-background: 225 6% 13%; /* Even Darker Blue-Gray for header */
-    --app-header-foreground: 0 0% 98%;
-    --app-footer-background: 224 71.4% 4.1%; /* Dark Blue-Gray for footer */
-    --app-footer-foreground: 220 8.9% 46.1%;
   }
 }
 
@@ -85,8 +72,7 @@
   }
   body {
     @apply bg-background text-foreground;
-    font-family: 'Inter', sans-serif; /* Adding a nice font */
+    font-family: 'Inter', sans-serif;
   }
-  /* Add Inter font to the project via CDN in index.html or install locally */
 }
 

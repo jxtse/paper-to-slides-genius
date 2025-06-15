@@ -52,38 +52,38 @@ const FileUpload: React.FC<FileUploadProps> = ({ onFileSelect, onGenerate, isGen
 
 
   return (
-    <div className="w-full max-w-2xl mx-auto bg-card p-8 rounded-lg shadow-xl border border-border">
+    <div className="w-full max-w-2xl mx-auto bg-mint/20 p-8 rounded-lg shadow-xl border border-transparent">
       {!selectedFile ? (
         <div
           onDrop={handleDrop}
           onDragOver={handleDragOver}
           onDragLeave={handleDragLeave}
-          className={`flex flex-col items-center justify-center p-8 border-2 border-dashed rounded-lg transition-colors
-            ${isDragging ? 'border-primary bg-primary/10' : 'border-border hover:border-primary/70'}`}
+          className={`flex flex-col items-center justify-center p-8 border-2 border-dashed rounded-lg transition-all duration-300
+            ${isDragging ? 'border-solid border-salmon bg-salmon/20' : 'border-mauve hover:border-solid hover:bg-mint/30'}`}
         >
-          <UploadCloud size={64} className="text-primary mb-4" />
-          <p className="text-xl font-semibold text-foreground mb-2">Drag & drop your PDF here</p>
-          <p className="text-muted-foreground mb-4">or</p>
-          <Button asChild variant="outline">
+          <UploadCloud size={64} className="text-salmon mb-4 animate-pulse-salmon" />
+          <p className="text-xl font-semibold text-teal-green mb-2">Drag & drop your PDF here</p>
+          <p className="text-teal-green/80 mb-4">or</p>
+          <Button asChild variant="outline" className="bg-white border-salmon text-salmon hover:bg-salmon hover:text-white transition-all">
             <label htmlFor="file-upload" className="cursor-pointer">
               Browse Files
               <input id="file-upload" type="file" accept=".pdf" className="sr-only" onChange={handleFileChange} />
             </label>
           </Button>
-          <p className="text-xs text-muted-foreground mt-4">Only PDF files are accepted.</p>
+          <p className="text-xs text-teal-green/60 mt-4">Only PDF files are accepted.</p>
         </div>
       ) : (
         <div className="text-center">
-          <FileText size={48} className="text-primary mx-auto mb-4" />
-          <p className="text-lg font-medium text-foreground mb-2">File Selected: {selectedFile.name}</p>
-          <p className="text-sm text-muted-foreground mb-6">Size: {(selectedFile.size / 1024 / 1024).toFixed(2)} MB</p>
+          <FileText size={48} className="text-mauve mx-auto mb-4" />
+          <p className="text-lg font-medium text-teal-green mb-2">File Selected: {selectedFile.name}</p>
+          <p className="text-sm text-teal-green/70 mb-6">Size: {(selectedFile.size / 1024 / 1024).toFixed(2)} MB</p>
           <div className="flex gap-4 justify-center">
-            <Button onClick={clearFile} variant="outline">
+            <Button onClick={clearFile} variant="outline" className="border-mauve text-mauve hover:bg-mauve hover:text-white transition-all hover:scale-105">
               <XCircle size={18} className="mr-2" />
               Change File
             </Button>
-            <Button onClick={onGenerate} disabled={isGenerating}>
-              {isGenerating ? 'Generating...' : 'Generate Slides Outline'}
+            <Button onClick={onGenerate} disabled={isGenerating} className="bg-salmon text-white hover:bg-salmon/90 transition-transform hover:scale-105">
+              {isGenerating ? 'Generating...' : 'Start Your Presentation Journey'}
             </Button>
           </div>
         </div>

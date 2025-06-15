@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
@@ -9,6 +10,13 @@ import * as pdfjsLib from 'pdfjs-dist';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import ExtractedImagesDisplay from '@/components/ExtractedImagesDisplay';
+
+// New component imports
+import HeroSection from '@/components/HeroSection';
+import FeatureCards from '@/components/FeatureCards';
+import WorkflowDiagram from '@/components/WorkflowDiagram';
+import TrustElements from '@/components/TrustElements';
+
 
 // Required for pdfjs-dist to work
 // You might need to host these worker files or adjust the path depending on your bundler setup.
@@ -226,15 +234,7 @@ const Index: React.FC = () => {
     <div className="flex flex-col min-h-screen bg-background">
       <Header />
       <main className="flex-grow container mx-auto px-6 py-12">
-        <section className="text-center mb-16 p-12 bg-card rounded-xl shadow-lg">
-          <h2 className="text-4xl font-bold text-foreground mb-4">
-            Transform Your Papers into Engaging Presentations
-          </h2>
-          <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
-            Upload your academic PDF, and let our AI craft a structured slide outline for you.
-            Effortless, intelligent, and fast.
-          </p>
-        </section>
+        <HeroSection />
 
         <FileUpload
           onFileSelect={handleFileSelect}
@@ -245,17 +245,17 @@ const Index: React.FC = () => {
         />
         
         {extractedText && extractedText !== "Error extracting text." && (
-          <div className="mt-8 p-4 bg-muted rounded-lg max-w-3xl mx-auto">
+          <div className="mt-8 p-4 bg-white/60 rounded-lg max-w-3xl mx-auto shadow-inner">
             <div className="flex justify-between items-center mb-2">
-                <h3 className="text-lg font-semibold text-foreground">
+                <h3 className="text-lg font-semibold text-teal-green">
                     {isTextExpanded ? "Extracted Text" : "Extracted Text (Snippet)"}
                 </h3>
-                <Button variant="ghost" size="sm" onClick={() => setIsTextExpanded(!isTextExpanded)}>
+                <Button variant="ghost" size="sm" onClick={() => setIsTextExpanded(!isTextExpanded)} className="text-teal-green hover:bg-mint/50">
                     <Expand className="mr-2 h-4 w-4" />
                     <span>{isTextExpanded ? "Collapse" : "Expand"}</span>
                 </Button>
             </div>
-            <pre className={`whitespace-pre-wrap text-sm text-muted-foreground overflow-auto transition-all duration-300 ${isTextExpanded ? 'max-h-[60vh]' : 'max-h-40'}`}>
+            <pre className={`whitespace-pre-wrap text-sm text-teal-green/80 bg-mint/20 p-4 rounded-md overflow-auto transition-all duration-300 ${isTextExpanded ? 'max-h-[60vh]' : 'max-h-40'}`}>
               {isTextExpanded ? extractedText : `${extractedText.substring(0, 500)}...`}
             </pre>
           </div>
@@ -269,6 +269,12 @@ const Index: React.FC = () => {
         {extractedImages.length > 0 && <ExtractedImagesDisplay images={extractedImages} />}
 
         {slideMarkdown && <OutlineDisplay markdownContent={slideMarkdown} extractedText={extractedText} extractedImages={extractedImages} />}
+
+        <FeatureCards />
+
+        <WorkflowDiagram />
+
+        <TrustElements />
 
       </main>
       <Footer />
