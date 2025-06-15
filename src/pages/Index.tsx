@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
@@ -267,9 +268,12 @@ const Index: React.FC = () => {
 
         {slideMarkdown && <OutlineDisplay markdownContent={slideMarkdown} extractedText={extractedText} extractedImages={extractedImages} />}
 
-        <FeatureCards />
-
-        <WorkflowDiagram />
+        {!selectedFile && (
+          <>
+            <FeatureCards />
+            <WorkflowDiagram />
+          </>
+        )}
 
       </main>
       <Footer />
