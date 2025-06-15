@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
@@ -224,14 +223,14 @@ const Index: React.FC = () => {
   };
 
   return (
-    <div className="flex flex-col min-h-screen bg-background">
+    <div className="flex flex-col min-h-screen">
       <Header />
       <main className="flex-grow container mx-auto px-6 py-12">
         <section className="text-center mb-16 py-20 px-6 relative bg-card border border-primary/10 rounded-xl overflow-hidden shadow-2xl shadow-primary/10">
           <div className="absolute inset-0 bg-grid-pattern opacity-50"></div>
           <div className="absolute -inset-2 bg-gradient-to-t from-background to-transparent"></div>
           <div className="relative z-10">
-            <h2 className="text-5xl font-bold text-foreground mb-4 animate-fade-in drop-shadow-[0_0_8px_hsl(var(--primary))]">
+            <h2 className="text-5xl font-bold text-foreground mb-4 animate-fade-in">
               Transform Your Papers into Engaging Presentations
             </h2>
             <p className="text-xl text-muted-foreground max-w-3xl mx-auto animate-fade-in [animation-delay:0.2s]">

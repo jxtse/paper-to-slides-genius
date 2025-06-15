@@ -88,7 +88,22 @@
     @apply border-border;
   }
   body {
-    @apply bg-background text-foreground;
+    @apply text-foreground;
     font-family: 'Rajdhani', sans-serif; /* Tech-inspired font */
+    background: linear-gradient(-45deg, hsl(var(--background)), hsl(var(--card)), hsl(var(--secondary)), hsl(var(--background)));
+    background-size: 400% 400%;
+    animation: gradientBG 20s ease infinite;
+  }
+}
+
+@keyframes gradientBG {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
   }
 }
