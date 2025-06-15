@@ -33,30 +33,26 @@ const WorkflowDiagram = () => {
       </div>
 
       {/* Desktop View */}
-      <div className="hidden md:block max-w-4xl mx-auto">
-        <div className="flex justify-between items-center">
-          {steps.map((step, index) => (
-            <React.Fragment key={step.text}>
-              <div className="bg-mint/50 p-4 rounded-full">
+      <div className="hidden md:flex justify-between items-start max-w-4xl mx-auto">
+        {steps.map((step, index) => (
+          <React.Fragment key={step.text}>
+            <div className="flex flex-col items-center text-center w-24">
+              <div className="bg-mint/50 p-4 rounded-full mb-3">
                 <step.icon className="h-8 w-8 text-teal-green" />
               </div>
-              {index < steps.length - 1 && (
-                <div className="flex-1 h-1 bg-gradient-to-r from-mauve to-teal-green mx-4 rounded-full opacity-70 bg-[length:200%_200%] animate-gradient-flow" />
-              )}
-            </React.Fragment>
-          ))}
-        </div>
-        <div className="flex justify-between mt-3">
-          {steps.map((step) => (
-            <div key={step.text} className="w-24 text-center">
               <p className="font-semibold text-teal-green">{step.text}</p>
             </div>
-          ))}
-        </div>
+            {index < steps.length - 1 && (
+              <div 
+                className="flex-1 h-1 bg-gradient-to-r from-mauve to-teal-green mx-4 rounded-full opacity-70 bg-[length:200%_200%] animate-gradient-flow"
+                style={{ marginTop: '1.875rem' }} // Vertically center the line with the icon
+              />
+            )}
+          </React.Fragment>
+        ))}
       </div>
     </section>
   );
 };
 
 export default WorkflowDiagram;
-
